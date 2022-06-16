@@ -17,8 +17,7 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.get('#open-text-area').type(longText, {
             delay: 0
         })
-        cy.get('button[type="submit"]').click()
-
+        cy.contains('button', 'Enviar').click()
         cy.get('.success').should('be.visible')
     })
 
@@ -27,8 +26,62 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.get('#lastName').type('Warnava')
         cy.get('#email').type('laurateste@teste,com')
         cy.get('#open-text-area').type('Teste')
-        cy.get('button[type="submit"]').click()
+        cy.contains('button', 'Enviar').click()
 
         cy.get('.error').should('be.visible')
+    })
+
+    it('campo telefone continua vazio quando preenchido com valor não-númerico', function () {
+        cy.get('#phone')
+            .type('acdefgg')
+            .get('#phone').should('have.value', '')
+    })
+
+    it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function () {
+        cy.get('#firstName').type('Laura')
+        cy.get('#lastName').type('Warnava')
+        cy.get('#email').type('laurateste@teste.com')
+        cy.get('#phone-checkbox').click()
+        cy.get('#open-text-area').type('Teste')
+        cy.contains('button', 'Enviar').click()
+
+        cy.get('.error').should('be.visible')
+    })
+
+    it('preenche e limpa os campos nome, sobrenome, email e telefone', function () {
+        cy.get('#firstName')
+            .type('Laura')
+            .should('have.value', 'Laura')
+            .clear()
+            .should('have.value', '')
+
+        cy.get('#lastName')
+            .type('Warnava')
+            .should('have.value', 'Warnava')
+            .clear()
+            .should('have.value', '')
+
+        cy.get('#email')
+            .type('laurateste@teste.com')
+            .should('have.value', 'laurateste@teste.com')
+            .clear()
+            .should('have.value', '')
+
+        cy.get('#open-text-area')
+            .type('Teste')
+            .should('have.value', 'Teste')
+            .clear()
+            .should('have.value', '')
+    })
+
+    it('exibe mensagem de erro ao submeter o formulário sem preencher os campos obrigatórios', function () {
+        cy.contains('button', 'Enviar').click()
+        cy.get('.error').should('be.visible')
+    })
+
+    it('envia o formuário com sucesso usando um comando customizado', function () {
+        cy.fillMandatoryFieldsAndSubmit()
+
+        cy.get('.success').should('be.visible')
     })
 })
